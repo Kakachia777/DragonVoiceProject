@@ -1,0 +1,24 @@
+{
+    "integration": {
+        "mode": "file",
+        "file_path": "C:/dragon_query.txt",
+        "polling_interval": 1.0,
+        "command_prefix": "search for"
+    },
+    "browser": {
+        "window_title_pattern": "Chrome",
+        "typing_delay": 0.05,
+        "window_switch_delay": 0.5
+    },
+    "feedback": {
+        "audio_enabled": true,
+        "popup_enabled": true,
+        "log_queries": true,
+        "log_file": "dragon_voice_queries.log"
+    },
+    "advanced": {
+        "max_retries": 3,
+        "retry_delay": 1.0,
+        "search_timeout": 5.0
+    }
+} 
