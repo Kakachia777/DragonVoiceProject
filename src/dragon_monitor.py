@@ -2,8 +2,9 @@
 """
 DragonVoiceProject - Dragon Medical One Monitor (Phase 3)
 
-This script monitors Dragon Medical One output and triggers browser automation.
-It supports monitoring both text files and the clipboard.
+This script monitors Dragon Medical One output and triggers chatbot automation.
+It supports monitoring both text files and the clipboard to detect voice commands,
+then sends the detected queries to medical AI chatbots open in browser windows.
 
 Usage:
     python dragon_monitor.py [--mode {file,clipboard}] [--file FILE_PATH] [--interval SECONDS] [--verbose]
@@ -65,12 +66,20 @@ DEFAULT_CONFIG = {
         "mode": "file",
         "file_path": "C:/dragon_query.txt",
         "polling_interval": 1.0,
-        "command_prefix": "search for"
+        "command_prefix": "ask"
     },
     "browser": {
         "window_title_pattern": "Chrome",
         "typing_delay": 0.05,
         "window_switch_delay": 0.5
+    },
+    "chatbots": {
+        "grok": {
+            "title_pattern": "Grok",
+            "input_position": [500, 700],
+            "send_method": "enter",
+            "typing_delay": 0.05
+        }
     },
     "feedback": {
         "audio_enabled": True,
@@ -81,7 +90,7 @@ DEFAULT_CONFIG = {
     "advanced": {
         "max_retries": 3,
         "retry_delay": 1.0,
-        "search_timeout": 5.0
+        "send_timeout": 5.0
     }
 }
 
@@ -314,27 +323,27 @@ def provide_feedback(query):
 
 def process_query(query):
     """
-    Process a search query by typing it into all Chrome windows.
+    Process a query by typing it into all open chatbot windows.
     """
     global last_processed_query
     
     # Extract the actual query from the text
-    search_query = extract_search_query(query)
+    chat_query = extract_search_query(query)
     
-    if not search_query:
-        logger.debug(f"No valid search query found in: '{query}'")
+    if not chat_query:
+        logger.debug(f"No valid query found in: '{query}'")
         return False
     
     # Check if this is a new query
-    if search_query == last_processed_query:
-        logger.debug(f"Already processed this query: '{search_query}'")
+    if chat_query == last_processed_query:
+        logger.debug(f"Already processed this query: '{chat_query}'")
         return False
     
     # Update last processed query
-    last_processed_query = search_query
+    last_processed_query = chat_query
     
     # Provide feedback
-    provide_feedback(search_query)
+    provide_feedback(chat_query)
     
     # Find browser windows
     window_title_pattern = config["browser"]["window_title_pattern"]
@@ -343,6 +352,9 @@ def process_query(query):
     if not browser_windows:
         logger.warning(f"No browser windows found matching pattern: '{window_title_pattern}'")
         return False
+    
+    # Check if we have chatbot configurations
+    chatbots_config = config.get("chatbots", {})
     
     # Type the query into each browser window
     typing_delay = config["browser"]["typing_delay"]
@@ -354,17 +366,32 @@ def process_query(query):
     for i, window in enumerate(browser_windows, 1):
         logger.info(f"Window {i}/{len(browser_windows)}: {window.title}")
         
+        # Check if this window matches any chatbot configuration
+        window_title = window.title.lower()
+        chatbot_config = None
+        
+        for chatbot, settings in chatbots_config.items():
+            if settings.get("title_pattern", "").lower() in window_title:
+                chatbot_config = settings
+                logger.info(f"Using specific configuration for {chatbot}")
+                break
+        
         # Try typing with retries
         success = False
         for attempt in range(1, max_retries + 1):
             try:
-                if type_query_in_window(window, search_query, typing_delay):
-                    success = True
-                    break
+                if chatbot_config:
+                    if handle_configured_chat(window, chat_query, chatbot_config):
+                        success = True
+                        break
                 else:
-                    logger.warning(f"Failed to type in window, attempt {attempt}/{max_retries}")
-                    if attempt < max_retries:
-                        time.sleep(retry_delay)
+                    if type_query_in_window(window, chat_query, typing_delay):
+                        success = True
+                        break
+                
+                logger.warning(f"Failed to type in window, attempt {attempt}/{max_retries}")
+                if attempt < max_retries:
+                    time.sleep(retry_delay)
             except Exception as e:
                 logger.error(f"Error typing in window: {e}")
                 if attempt < max_retries:
@@ -378,9 +405,60 @@ def process_query(query):
         time.sleep(window_switch_delay)
     
     # Print summary
-    logger.info(f"Automation complete. Successfully typed into {success_count}/{len(browser_windows)} windows.")
+    logger.info(f"Automation complete. Successfully sent query to {success_count}/{len(browser_windows)} chatbots.")
     
     return success_count > 0
+
+
+def handle_configured_chat(window, query, chatbot_config):
+    """
+    Handle chat based on chatbot configuration.
+    """
+    try:
+        # Get input position - absolute or relative to window
+        input_position = chatbot_config.get("input_position", [])
+        if len(input_position) == 2 and input_position[0] < 1 and input_position[1] < 1:
+            # Relative position (0.0-1.0)
+            input_x = window.left + int(window.width * input_position[0])
+            input_y = window.top + int(window.height * input_position[1])
+        elif len(input_position) == 2:
+            # Absolute position
+            input_x, input_y = input_position
+        else:
+            # Default to bottom center
+            input_x = window.left + (window.width // 2)
+            input_y = window.bottom - 50
+        
+        # Activate window first
+        window.activate()
+        time.sleep(0.5)  # Allow time for window to become active
+        
+        # Click on input field
+        pyautogui.click(input_x, input_y)
+        time.sleep(0.3)
+        
+        # Type with custom delay
+        typing_delay = chatbot_config.get("typing_delay", 0.05)
+        pyautogui.write(query, interval=typing_delay)
+        
+        # Send based on method
+        send_method = chatbot_config.get("send_method", "enter")
+        if send_method == "enter":
+            pyautogui.press('enter')
+        elif send_method == "button":
+            button_pos = chatbot_config.get("send_button_position", [input_x + 100, input_y])
+            pyautogui.click(button_pos[0], button_pos[1])
+        
+        # Wait after sending if specified
+        wait_time = chatbot_config.get("wait_time", 0)
+        if wait_time > 0:
+            time.sleep(wait_time)
+        
+        return True
+    
+    except Exception as e:
+        logger.error(f"Error handling configured chat: {e}")
+        return False
 
 
 def monitor_loop():

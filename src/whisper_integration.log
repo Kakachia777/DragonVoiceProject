@@ -1,0 +1,240 @@
+2025-03-13 23:28:45,774 - INFO - Starting DragonVoice application
+2025-03-13 23:28:46,062 - INFO - Initializing DragonVoiceGUI
+2025-03-13 23:28:46,062 - INFO - Initializing DragonVoiceGUI
+2025-03-13 23:28:46,064 - INFO - Initializing DragonVoice GUI
+2025-03-13 23:28:46,065 - INFO - Logging setup complete
+2025-03-13 23:28:46,237 - ERROR - Configuration file not found: src/config.json
+2025-03-13 23:28:46,239 - INFO - Configuration loaded from src/config.json
+2025-03-13 23:28:46,274 - INFO - Default input device: Microphone (Realtek(R) Audio)
+2025-03-13 23:28:46,275 - INFO - Audio system initialized successfully
+2025-03-13 23:28:46,277 - INFO - WhisperRecognizer initialized with DeepInfra API settings
+2025-03-13 23:28:46,278 - INFO - WhisperRecognizer initialized successfully
+2025-03-13 23:28:46,335 - INFO - Footer created successfully with status_label initialized
+2025-03-13 23:28:46,472 - INFO - Found 14 input devices
+2025-03-13 23:28:49,113 - INFO - Chatbots refreshed
+2025-03-13 23:28:50,264 - INFO - Application initialized successfully
+2025-03-13 23:28:50,265 - INFO - UI setup completed successfully
+2025-03-13 23:28:50,280 - INFO - Starting application main loop
+2025-03-13 23:28:50,281 - INFO - Starting DragonVoice application
+2025-03-13 23:28:50,281 - INFO - Application started successfully
+2025-03-13 23:28:50,292 - WARNING - monitor_canvas not initialized yet
+2025-03-13 23:45:28,981 - INFO - Starting DragonVoice application
+2025-03-13 23:45:29,271 - INFO - Initializing DragonVoiceGUI
+2025-03-13 23:45:29,272 - INFO - Initializing DragonVoiceGUI
+2025-03-13 23:45:29,273 - INFO - Initializing DragonVoice GUI
+2025-03-13 23:45:29,273 - INFO - Logging setup complete
+2025-03-13 23:45:29,441 - ERROR - Configuration file not found: src/config.json
+2025-03-13 23:45:29,442 - INFO - Configuration loaded from src/config.json
+2025-03-13 23:45:29,476 - INFO - Default input device: Microphone (Realtek(R) Audio)
+2025-03-13 23:45:29,477 - INFO - Audio system initialized successfully
+2025-03-13 23:45:29,478 - INFO - WhisperRecognizer initialized with DeepInfra API settings
+2025-03-13 23:45:29,480 - INFO - WhisperRecognizer initialized successfully
+2025-03-13 23:45:29,623 - INFO - Footer created successfully with status_label initialized
+2025-03-13 23:45:30,691 - INFO - Found 14 input devices
+2025-03-13 23:45:32,864 - INFO - Chatbots refreshed
+2025-03-13 23:45:33,964 - INFO - Application initialized successfully
+2025-03-13 23:45:33,966 - INFO - UI setup completed successfully
+2025-03-13 23:45:33,986 - INFO - Starting application main loop
+2025-03-13 23:45:33,987 - INFO - Starting DragonVoice application
+2025-03-13 23:45:33,988 - INFO - Application started successfully
+2025-03-13 23:45:34,004 - WARNING - monitor_canvas not initialized yet
+2025-03-14 01:07:42,051 - INFO - Starting DragonVoice application
+2025-03-14 01:07:42,378 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:07:42,379 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:07:42,380 - INFO - Initializing DragonVoice GUI
+2025-03-14 01:07:42,381 - INFO - Logging setup complete
+2025-03-14 01:07:42,559 - ERROR - Configuration file not found: src/config.json
+2025-03-14 01:07:42,560 - INFO - Configuration loaded from src/config.json
+2025-03-14 01:07:42,594 - INFO - Default input device: Microphone (Realtek(R) Audio)
+2025-03-14 01:07:42,595 - INFO - Audio system initialized successfully
+2025-03-14 01:07:42,596 - INFO - WhisperRecognizer initialized with DeepInfra API settings
+2025-03-14 01:07:42,597 - INFO - WhisperRecognizer initialized successfully
+2025-03-14 01:07:42,785 - INFO - Found 14 input devices
+2025-03-14 01:07:42,786 - WARNING - Status label not initialized yet, can't update status
+2025-03-14 01:07:42,863 - ERROR - Error setting up UI: 'DragonVoiceGUI' object has no attribute 'create_status_panel'
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 227, in setup_ui
+    self.create_tabs()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 598, in create_tabs
+    self.create_dashboard_tab()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 621, in create_dashboard_tab
+    status_panel = self.create_status_panel(dashboard_container)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DragonVoiceGUI' object has no attribute 'create_status_panel'
+2025-03-14 01:08:08,617 - INFO - Starting application main loop
+2025-03-14 01:08:08,618 - INFO - Starting DragonVoice application
+2025-03-14 01:08:08,619 - INFO - Application started successfully
+2025-03-14 01:08:08,621 - WARNING - Status label not initialized yet, can't update status
+2025-03-14 01:11:11,254 - INFO - Starting DragonVoice application
+2025-03-14 01:11:11,553 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:11:11,553 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:11:11,555 - INFO - Initializing DragonVoice GUI
+2025-03-14 01:11:11,555 - INFO - Logging setup complete
+2025-03-14 01:11:11,738 - ERROR - Configuration file not found: src/config.json
+2025-03-14 01:11:11,738 - INFO - Configuration loaded from src/config.json
+2025-03-14 01:11:11,773 - INFO - Default input device: Microphone (Realtek(R) Audio)
+2025-03-14 01:11:11,773 - INFO - Audio system initialized successfully
+2025-03-14 01:11:11,773 - INFO - WhisperRecognizer initialized with DeepInfra API settings
+2025-03-14 01:11:11,774 - INFO - WhisperRecognizer initialized successfully
+2025-03-14 01:11:11,898 - INFO - Found 14 input devices
+2025-03-14 01:11:11,898 - WARNING - Status label not initialized yet, can't update status
+2025-03-14 01:11:11,953 - ERROR - Error setting up UI: 'DragonVoiceGUI' object has no attribute 'create_status_panel'
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 227, in setup_ui
+    self.create_tabs()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 598, in create_tabs
+    self.create_dashboard_tab()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 621, in create_dashboard_tab
+    status_panel = self.create_status_panel(dashboard_container)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DragonVoiceGUI' object has no attribute 'create_status_panel'
+2025-03-14 01:11:18,723 - INFO - Starting application main loop
+2025-03-14 01:11:18,724 - INFO - Starting DragonVoice application
+2025-03-14 01:11:18,724 - INFO - Application started successfully
+2025-03-14 01:11:18,724 - WARNING - Status label not initialized yet, can't update status
+2025-03-14 01:16:50,399 - INFO - Starting DragonVoice application
+2025-03-14 01:16:50,661 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:16:50,662 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:16:50,663 - INFO - Initializing DragonVoice GUI
+2025-03-14 01:16:50,664 - INFO - Logging setup complete
+2025-03-14 01:16:50,836 - ERROR - Error initializing DragonVoiceGUI: 'DragonVoiceGUI' object has no attribute 'load_config'
+2025-03-14 01:16:50,837 - ERROR - Error running application: 'DragonVoiceGUI' object has no attribute 'load_config'
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 3067, in main
+    app = DragonVoiceGUI()
+          ^^^^^^^^^^^^^^^^
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 95, in __init__
+    self.config = self.load_config()
+                  ^^^^^^^^^^^^^^^^
+AttributeError: 'DragonVoiceGUI' object has no attribute 'load_config'
+2025-03-14 01:18:01,663 - INFO - Starting DragonVoice application
+2025-03-14 01:18:01,931 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:18:01,932 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:18:01,933 - INFO - Initializing DragonVoice GUI
+2025-03-14 01:18:01,934 - INFO - Logging setup complete
+2025-03-14 01:18:02,106 - ERROR - Configuration file not found: src/config.json
+2025-03-14 01:18:02,107 - INFO - Configuration loaded from src/config.json
+2025-03-14 01:18:02,151 - INFO - Default input device: Microphone (Realtek(R) Audio)
+2025-03-14 01:18:02,153 - INFO - Audio system initialized successfully
+2025-03-14 01:18:02,154 - INFO - WhisperRecognizer initialized with DeepInfra API settings
+2025-03-14 01:18:02,155 - INFO - WhisperRecognizer initialized successfully
+2025-03-14 01:18:02,255 - ERROR - Error setting up UI: 'DragonVoiceGUI' object has no attribute 'toggle_theme'
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 226, in setup_ui
+    self.create_header()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 440, in create_header
+    command=self.toggle_theme
+            ^^^^^^^^^^^^^^^^^
+AttributeError: 'DragonVoiceGUI' object has no attribute 'toggle_theme'
+2025-03-14 01:18:05,075 - ERROR - Error initializing DragonVoiceGUI: 'DragonVoiceGUI' object has no attribute 'start_system_monitoring'
+2025-03-14 01:18:05,077 - ERROR - Error running application: 'DragonVoiceGUI' object has no attribute 'start_system_monitoring'
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 3099, in main
+    app = DragonVoiceGUI()
+          ^^^^^^^^^^^^^^^^
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 108, in __init__
+    self.start_system_monitoring()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DragonVoiceGUI' object has no attribute 'start_system_monitoring'
+2025-03-14 01:19:36,936 - INFO - Starting DragonVoice application
+2025-03-14 01:19:37,215 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:19:37,216 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:19:37,217 - INFO - Initializing DragonVoice GUI
+2025-03-14 01:19:37,218 - INFO - Logging setup complete
+2025-03-14 01:19:37,385 - ERROR - Configuration file not found: src/config.json
+2025-03-14 01:19:37,387 - INFO - Configuration loaded from src/config.json
+2025-03-14 01:19:37,421 - INFO - Default input device: Microphone (Realtek(R) Audio)
+2025-03-14 01:19:37,422 - INFO - Audio system initialized successfully
+2025-03-14 01:19:37,423 - INFO - WhisperRecognizer initialized with DeepInfra API settings
+2025-03-14 01:19:37,425 - INFO - WhisperRecognizer initialized successfully
+2025-03-14 01:19:37,554 - ERROR - Error refreshing microphone list: 'DragonVoiceGUI' object has no attribute 'update_status'
+2025-03-14 01:19:37,556 - ERROR - Error setting up UI: 'DragonVoiceGUI' object has no attribute 'update_status'
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 2675, in refresh_mic_list
+    self.update_status(f"Found {len(input_devices)-1} input devices")
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'DragonVoiceGUI' object has no attribute 'update_status'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 226, in setup_ui
+    self.create_header()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 473, in create_header
+    self.refresh_mic_list()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 2679, in refresh_mic_list
+    self.update_status("Failed to refresh microphone list", "error")
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'DragonVoiceGUI' object has no attribute 'update_status'
+2025-03-14 01:19:41,255 - ERROR - Missing required method: toggle_voice_assistant
+2025-03-14 01:19:41,257 - ERROR - Error running application: DragonVoiceGUI is missing required method: toggle_voice_assistant
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 3276, in main
+    raise AttributeError(
+AttributeError: DragonVoiceGUI is missing required method: toggle_voice_assistant
+2025-03-14 01:22:12,307 - INFO - Starting DragonVoice application
+2025-03-14 01:22:12,576 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:22:12,578 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:22:12,579 - INFO - Initializing DragonVoice GUI
+2025-03-14 01:22:12,580 - INFO - Logging setup complete
+2025-03-14 01:22:12,772 - ERROR - Configuration file not found: src/config.json
+2025-03-14 01:22:12,773 - INFO - Configuration loaded from src/config.json
+2025-03-14 01:22:12,807 - INFO - Default input device: Microphone (Realtek(R) Audio)
+2025-03-14 01:22:12,808 - INFO - Audio system initialized successfully
+2025-03-14 01:22:12,809 - INFO - WhisperRecognizer initialized with DeepInfra API settings
+2025-03-14 01:22:12,811 - INFO - WhisperRecognizer initialized successfully
+2025-03-14 01:22:12,937 - INFO - Found 14 input devices
+2025-03-14 01:22:12,939 - WARNING - Status label not initialized yet, can't update status
+2025-03-14 01:22:12,999 - ERROR - Error setting up UI: 'DragonVoiceGUI' object has no attribute 'create_status_panel'
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 227, in setup_ui
+    self.create_tabs()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 598, in create_tabs
+    self.create_dashboard_tab()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 621, in create_dashboard_tab
+    status_panel = self.create_status_panel(dashboard_container)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DragonVoiceGUI' object has no attribute 'create_status_panel'
+2025-03-14 01:22:17,059 - INFO - Starting application main loop
+2025-03-14 01:22:17,062 - INFO - Starting DragonVoice application
+2025-03-14 01:22:17,063 - INFO - Application started successfully
+2025-03-14 01:22:17,064 - WARNING - Status label not initialized yet, can't update status
+2025-03-14 01:58:36,296 - INFO - Starting DragonVoice GUI application
+2025-03-14 01:58:36,607 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:58:36,607 - INFO - Initializing DragonVoice GUI
+2025-03-14 01:58:36,608 - INFO - Logging setup complete
+2025-03-14 01:58:36,782 - ERROR - Error initializing DragonVoiceGUI: expected str, bytes or os.PathLike object, not CTk
+2025-03-14 01:58:36,783 - ERROR - Error in main function: expected str, bytes or os.PathLike object, not CTk
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 4136, in main
+    app = DragonVoiceGUI(root)
+          ^^^^^^^^^^^^^^^^^^^^
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 95, in __init__
+    self.config = self.load_config()
+                  ^^^^^^^^^^^^^^^^^^
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 2649, in load_config
+    with open(self.config_path, "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not CTk
+2025-03-14 01:59:43,155 - INFO - Starting DragonVoice GUI application
+2025-03-14 01:59:43,407 - INFO - Initializing DragonVoiceGUI
+2025-03-14 01:59:43,407 - INFO - Initializing DragonVoice GUI
+2025-03-14 01:59:43,408 - INFO - Logging setup complete
+2025-03-14 01:59:43,410 - ERROR - Configuration file not found: src/config.json
+2025-03-14 01:59:43,410 - INFO - Configuration loaded from src/config.json
+2025-03-14 01:59:43,450 - INFO - Default input device: Microphone (Realtek(R) Audio)
+2025-03-14 01:59:43,451 - INFO - Audio system initialized successfully
+2025-03-14 01:59:43,451 - INFO - WhisperRecognizer initialized with DeepInfra API settings
+2025-03-14 01:59:43,452 - INFO - WhisperRecognizer initialized successfully
+2025-03-14 01:59:43,638 - INFO - Found 14 input devices
+2025-03-14 01:59:43,639 - WARNING - Status label not initialized yet, can't update status
+2025-03-14 01:59:43,699 - ERROR - Error setting up UI: 'DragonVoiceGUI' object has no attribute 'create_status_panel'
+Traceback (most recent call last):
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 233, in setup_ui
+    self.create_tabs()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 604, in create_tabs
+    self.create_dashboard_tab()
+  File "C:\downloads\Frameworks\DragonVoiceProject\src\dragon_gui.py", line 627, in create_dashboard_tab
+    status_panel = self.create_status_panel(dashboard_container)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DragonVoiceGUI' object has no attribute 'create_status_panel'
