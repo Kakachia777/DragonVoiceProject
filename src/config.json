@@ -49,9 +49,9 @@
         "delay_between_inputs": 0.5,
         "coordinates": [
             {
-                "name": "Claude",
-                "x": -2638,
-                "y": -873,
+                "name": "Gemini Advanced",
+                "x": -2674,
+                "y": -186,
                 "submit_with": "ctrl+enter"
             },
             {
@@ -95,19 +95,20 @@
                 "y": 436
             },
             {
-                "name": "Gemini",
-                "x": 2168,
-                "y": 2024,
-                "submit_with": "ctrl+enter"
+                "name": "Gemini Studio",
+                "x": 2190,
+                "y": 1961,
+                "submit_with": "ctrl+enter",
+                "post_wait": 1.0
             },
             {
-                "name": "MedGPT",
-                "x": 3025,
-                "y": 941,
-                "special_sequence_after_paste": [
-                    {"action": "wait", "seconds": 1.0},
-                    {"action": "click", "x": 3777, "y": 994}
-                ]
+                "name": "ChatDoc",
+                "x": 3286,
+                "y": 909,
+                "submit_point": {
+                    "x": 3392,
+                    "y": 835
+                }
             },
             {
                 "name": "Chat",
@@ -121,16 +122,31 @@
             },
             {
                 "name": "DocuAsk",
-                "x": 6066,
-                "y": 1257,
-                "special_sequence": [
-                    {"action": "click", "x": 6345, "y": 390},
-                    {"action": "wait", "seconds": 0.8},
-                    {"action": "scroll", "amount": 20},
-                    {"action": "wait", "seconds": 1.2},
-                    {"action": "key", "key": "end"},
-                    {"action": "wait", "seconds": 0.5},
-                    {"action": "click", "x": 6279, "y": 1227}
+                "x": 6137,
+                "y": 1254,
+                "pre_clicks": [
+                    {
+                        "x": 5805,
+                        "y": 222,
+                        "delay": 1.0
+                    },
+                    {
+                        "x": 5940,
+                        "y": 308,
+                        "delay": 1.0
+                    },
+                    {
+                        "x": 6621,
+                        "y": 375,
+                        "delay": 1.0
+                    }
+                ],
+                "post_clicks": [
+                    {
+                        "x": 6137,
+                        "y": 1254,
+                        "delay": 1.0
+                    }
                 ]
             },
             {
@@ -154,5 +170,11 @@
                 "y": 1494
             }
         ]
+    },
+    "hotkeys": {
+        "enabled": true,
+        "record_key": "f9",
+        "quick_mode_key": "f10",
+        "paste_key": "f11"
     }
 }

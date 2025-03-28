@@ -65,6 +65,16 @@ RECORDINGS_DIR = os.path.join(PROJECT_DIR, "recordings")
 TRANSCRIPTS_DIR = os.path.join(PROJECT_DIR, "transcripts")
 LOGS_DIR = os.path.join(PROJECT_DIR, "logs")
 
+# Add watchdog import for file monitoring
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+    has_watchdog = True
+except ImportError:
+    has_watchdog = False
+    print("Note: For live config updates, install watchdog: pip install watchdog")
+    # The application will still work without watchdog, but won't have live updates
+
 class DragonVoiceCLI:
     """Terminal-based voice assistant with chatbot integration"""
     
@@ -102,6 +112,11 @@ class DragonVoiceCLI:
         self.print_welcome()
         
         logger.info("DragonVoice CLI initialized")
+        
+        # Start file watcher if watchdog is available
+        self.file_observer = None
+        if has_watchdog:
+            self.setup_file_watcher()
     
     def setup_directories(self):
         """Create necessary directories"""
@@ -594,6 +609,21 @@ class DragonVoiceCLI:
             coordinates = self.config["chatbot_input"]["coordinates"]
             delay = self.config["chatbot_input"]["delay_between_inputs"]
             
+            # GLOBAL PROTECTION: Completely remove any post_clicks for MedGPT from config
+            for i, coord in enumerate(coordinates):
+                if coord.get("name") == "ChatDoc" and "post_clicks" in coord:
+                    self.print_colored(f"🚨 GLOBAL SAFETY: Removing post_clicks from ChatDoc in config", "red", "bright")
+                    coordinates[i].pop("post_clicks", None)
+                    # Make sure the change persists
+                    self.config["chatbot_input"]["coordinates"] = coordinates
+                    self.print_colored(f"✅ ChatDoc post-clicks removed from configuration", "green", "bright")
+
+            # SAFETY CHECK: Ensure ChatDoc never has post_clicks
+            for coord in coordinates:
+                if coord.get("name") == "ChatDoc" and "post_clicks" in coord:
+                    self.print_colored("⚠️ Removing post_clicks from ChatDoc configuration for safety", "yellow", "bright")
+                    coord.pop("post_clicks", None)
+            
             # Get speed settings from config
             mouse_speed = self.config["chatbot_input"].get("mouse_speed", 0.2)
             action_delay = self.config["chatbot_input"].get("action_delay", 0.1)
@@ -719,6 +749,175 @@ class DragonVoiceCLI:
                     print(f"\r{' ' * 100}", end='', flush=True)  # Clear line with more space for names
                     print(f"\r[{chatbot_name}] {progress_bar}", end='', flush=True)
                     
+                    # Special case for DocuAsk: pre-clicks, then input text, then post-clicks
+                    if chatbot_name == "DocuAsk":
+                        self.print_colored(f"\nHandling DocuAsk with special sequence...", "cyan")
+                        
+                        # Execute pre-clicks first
+                        if "pre_clicks" in coords:
+                            self.print_colored(f"\nExecuting pre-clicks for {chatbot_name}...", "cyan")
+                            
+                            # Execute each pre-click with specified delay
+                            for pre_click in coords["pre_clicks"]:
+                                x = pre_click["x"]
+                                y = pre_click["y"]
+                                click_delay = pre_click.get("delay", 1.0)  # Default to 1 second delay if not specified
+                                
+                                # Move to and click on the specified coordinates
+                                self.print_colored(f"Pre-click at X={x}, Y={y}", "cyan")
+                                pyautogui.moveTo(x, y, duration=mouse_speed)
+                                pyautogui.click()
+                                time.sleep(click_delay)  # Wait for the specified delay
+                            
+                            self.print_colored(f"Completed all pre-clicks for {chatbot_name}", "green")
+                            
+                            # Wait 4 seconds after pre-clicks before proceeding
+                            self.print_colored(f"Waiting 4 seconds after pre-clicks...", "yellow")
+                            time.sleep(4.0)  # CRITICAL 4-second wait
+                            self.print_colored(f"4-second wait completed, proceeding to main input", "green")
+                        
+                        # Now move to main coordinates and click the input field
+                        self.print_colored(f"Moving to main input field at X={coords['x']}, Y={coords['y']}", "cyan")
+                        pyautogui.moveTo(coords["x"], coords["y"], duration=mouse_speed)
+                        pyautogui.click()
+                        time.sleep(0.5)  # Longer delay to ensure field is focused
+                        
+                        # Paste the text
+                        self.print_colored(f"Pasting text to {chatbot_name}", "cyan")
+                        pyautogui.hotkey('ctrl', 'v')
+                        time.sleep(0.3)  # Wait before pressing Enter
+                        
+                        # Press Enter to submit
+                        self.print_colored(f"Pressing Enter to submit", "cyan")
+                        pyautogui.press('enter')
+                        time.sleep(0.5)  # Wait after submission before post-click
+                        
+                        # Execute post-clicks AFTER submitting
+                        if "post_clicks" in coords:
+                            self.print_colored(f"\nExecuting post-clicks for {chatbot_name}...", "cyan")
+                            
+                            # Execute each post-click with specified delay
+                            for post_click in coords["post_clicks"]:
+                                x = post_click["x"]
+                                y = post_click["y"]
+                                click_delay = post_click.get("delay", 1.0)  # Default to 1 second delay
+                                
+                                # Move to and click on the specified coordinates
+                                self.print_colored(f"Post-click at X={x}, Y={y}", "cyan")
+                                pyautogui.moveTo(x, y, duration=mouse_speed)
+                                pyautogui.click()
+                                
+                                # Wait for the specified delay after clicking
+                                self.print_colored(f"Waiting {click_delay}s after post-click", "cyan")
+                                time.sleep(click_delay)
+                            
+                            self.print_colored(f"Completed all post-clicks for {chatbot_name}", "green")
+                        
+                        # Increment success counter
+                        success_count += 1
+                        
+                        # Continue to next chatbot
+                        continue
+                    
+                    # Special case for MedGPT: ONLY paste text with NO MOUSE CLICKS after
+                    elif chatbot_name == "MedGPT":
+                        self.print_colored(f"\n⚠️⚠️⚠️ HANDLING MEDGPT - NO POST-CLICKS ⚠️⚠️⚠️", "yellow", "bright")
+                        
+                        # CRITICAL: EXPLICITLY REMOVE ANY POST-CLICKS DATA
+                        if "post_clicks" in coords:
+                            self.print_colored(f"⚠️ REMOVING post-clicks configuration for MedGPT", "yellow", "bright")
+                            coords.pop("post_clicks", None)  # Completely remove post_clicks
+                        
+                        # Move to and click on the input field ONLY
+                        self.print_colored(f"Moving to input field at X={coords['x']}, Y={coords['y']}", "cyan")
+                        pyautogui.moveTo(coords["x"], coords["y"], duration=0.2)
+                        pyautogui.click()
+                        time.sleep(0.5)  # Ensure field is focused
+                        
+                        # Paste the text
+                        self.print_colored(f"Pasting text to MedGPT", "cyan")
+                        pyautogui.hotkey('ctrl', 'v')
+                        
+                        # NO MOUSE MOVEMENTS AFTER THIS POINT
+                        self.print_colored(f"⚠️ POST-PASTE: No further mouse actions will be performed for MedGPT", "yellow", "bright")
+                        
+                        # Increment success counter and disable any mouse movements
+                        success_count += 1
+                        pyautogui.FAILSAFE = True  # Enable failsafe in case mouse needs to be moved
+                        
+                        # IMPORTANT: Continue to next chatbot immediately
+                        self.print_colored(f"✅ MedGPT processing complete - Moving to next chatbot", "green", "bright")
+                        continue
+                    
+                    # Special case for Gemini Studio: write text once and submit with ctrl+enter
+                    elif chatbot_name == "Gemini Studio":
+                        self.print_colored(f"\nHandling Gemini Studio with special method...", "cyan")
+                        
+                        # Move to and click on the input field
+                        pyautogui.moveTo(coords["x"], coords["y"], duration=mouse_speed)
+                        pyautogui.click()
+                        time.sleep(0.5)  # Longer delay to ensure field is focused
+                        
+                        # Clear any existing text first
+                        pyautogui.hotkey('ctrl', 'a')  # Select all text
+                        time.sleep(0.1)
+                        pyautogui.press('delete')  # Delete selected text
+                        time.sleep(0.2)
+                        
+                        # Paste the text ONLY ONCE
+                        self.print_colored(f"Pasting text to Gemini Studio (ONE TIME ONLY)...", "green")
+                        pyautogui.hotkey('ctrl', 'v')
+                        time.sleep(0.5)  # Slight delay before submitting
+                        
+                        # Use Ctrl+Enter to submit
+                        self.print_colored(f"Sending Ctrl+Enter to {chatbot_name}...", "cyan")
+                        
+                        # Clear and explicit Ctrl+Enter press
+                        pyautogui.keyDown('ctrl')  # Press and HOLD ctrl
+                        time.sleep(0.3)            # Wait while holding ctrl
+                        pyautogui.press('enter')   # Press enter while ctrl is held
+                        time.sleep(0.3)            # Wait before releasing ctrl
+                        pyautogui.keyUp('ctrl')    # Release ctrl
+                        
+                        # Apply post_wait if specified
+                        if "post_wait" in coords:
+                            post_wait = coords.get("post_wait", 1.0)
+                            self.print_colored(f"Waiting for {post_wait}s after submission", "cyan")
+                            time.sleep(post_wait)
+                        
+                        # Increment success counter
+                        success_count += 1
+                        
+                        # Continue to next chatbot
+                        continue
+                    
+                    # Regular handling for other chatbots
+                    # Check if there are pre-clicks to perform before the main click
+                    if "pre_clicks" in coords:
+                        self.print_colored(f"\nExecuting pre-clicks for {chatbot_name}...", "cyan")
+                        
+                        # Execute each pre-click with specified delay
+                        for pre_click in coords["pre_clicks"]:
+                            x = pre_click["x"]
+                            y = pre_click["y"]
+                            click_delay = pre_click.get("delay", 1.0)  # Default to 1 second delay if not specified
+                            
+                            # Move to and click on the specified coordinates
+                            pyautogui.moveTo(x, y, duration=mouse_speed)
+                            pyautogui.click()
+                            time.sleep(click_delay)  # Wait for the specified delay
+                    
+                    # For backward compatibility, also check for click_before
+                    elif "click_before" in coords:
+                        self.print_colored(f"\nExecuting pre-clicks for {chatbot_name}...", "cyan")
+                        
+                        # Execute each pre-click action
+                        for pre_click in coords["click_before"]:
+                            # Move to and click on the specified coordinates
+                            pyautogui.moveTo(pre_click["x"], pre_click["y"], duration=mouse_speed)
+                            pyautogui.click()
+                            time.sleep(action_delay * 2)  # Double delay after each pre-click
+                    
                     # Move to and click on the input field - use configured speed
                     pyautogui.moveTo(coords["x"], coords["y"], duration=mouse_speed)
                     pyautogui.click()
@@ -734,19 +933,94 @@ class DragonVoiceCLI:
                         self.print_colored(f"\nUsing special submit method for {chatbot_name}: {submit_method}", "cyan")
                         
                         if submit_method == "ctrl+enter":
-                            # Use Ctrl+Enter to submit - use explicit keyDown/keyUp for more reliability
+                            # Use Ctrl+Enter to submit - use stronger method for reliability
                             time.sleep(0.5)  # Add a longer delay before sending Ctrl+Enter
                             self.print_colored(f"Sending Ctrl+Enter to {chatbot_name}...", "cyan")
                             
-                            # Method using explicit keyDown/keyUp
-                            pyautogui.keyDown('ctrl')
-                            time.sleep(0.2)  # Wait a bit with ctrl pressed
-                            pyautogui.press('enter')
-                            time.sleep(0.2)  # Wait a bit before releasing ctrl
-                            pyautogui.keyUp('ctrl')
+                            # Add a special longer delay specifically for Claude before submitting
+                            if chatbot_name == "Claude":
+                                self.print_colored(f"Claude detected - Using enhanced method for Claude...", "green")
+                                time.sleep(1.0)  # Wait exactly 1 second for Claude
+                                
+                                # Try an improved method specifically for Claude
+                                try:
+                                    # First ensure the input field is still focused
+                                    pyautogui.click(coords["x"], coords["y"])
+                                    time.sleep(0.5)
+                                    
+                                    # Try a more distinct method for Claude - use hotkey directly
+                                    self.print_colored("Using direct hotkey method for Claude", "green")
+                                    pyautogui.hotkey('ctrl', 'enter')
+                                    time.sleep(0.8)  # Wait longer after sending
+                                    
+                                    # Success message
+                                    self.print_colored(f"Sent Ctrl+Enter to Claude using direct hotkey method", "green")
+                                except Exception as e:
+                                    self.print_colored(f"Error with direct method, falling back: {e}", "yellow")
+                                    # Fall back to the standard method as a last resort
+                                    pyautogui.keyDown('ctrl')  
+                                    time.sleep(0.4)           
+                                    pyautogui.press('enter')   
+                                    time.sleep(0.4)            
+                                    pyautogui.keyUp('ctrl')
+                                    
+                                # Skip the standard method since we already handled Claude
+                                continue
                             
-                            # Add extra delay after sending Ctrl+Enter
-                            time.sleep(0.5)
+                            # Special case for Gemini which may need a different approach
+                            elif chatbot_name == "Gemini":
+                                self.print_colored(f"Gemini detected - Using enhanced method for Gemini...", "green")
+                                time.sleep(1.0)  # Wait a bit longer for Gemini
+                                
+                                # Try a more robust method for Gemini
+                                try:
+                                    # First re-click to ensure the input field is still focused
+                                    pyautogui.click(coords["x"], coords["y"])
+                                    time.sleep(0.5)
+                                    
+                                    # First attempt: Use direct hotkey with extra delay
+                                    self.print_colored("Using direct hotkey method for Gemini with extra delay", "green")
+                                    pyautogui.hotkey('ctrl', 'enter')
+                                    time.sleep(1.0)  # Longer wait after sending
+                                    
+                                    # Second attempt: Try the longer key sequence method
+                                    self.print_colored("Using secondary method for Gemini", "green")
+                                    pyautogui.keyDown('ctrl')
+                                    time.sleep(0.5)  # Longer hold time for Gemini
+                                    pyautogui.press('enter')
+                                    time.sleep(0.5)  # Longer wait time
+                                    pyautogui.keyUp('ctrl')
+                                    time.sleep(0.5)
+                                    
+                                    # Success message
+                                    self.print_colored(f"Sent Ctrl+Enter to Gemini using enhanced method", "green")
+                                except Exception as e:
+                                    self.print_colored(f"Error with enhanced method, falling back: {e}", "yellow")
+                                    # Final fallback attempt
+                                    pyautogui.press('enter')
+                                    
+                                # Skip the standard method since we already handled Gemini
+                                continue
+                            
+                            # FIXED CTRL+ENTER METHOD - MORE DIRECT AND RELIABLE
+                            try:
+                                # Simple, direct approach: Hold Ctrl and hit Enter clearly
+                                self.print_colored(f"Holding Ctrl and pressing Enter...", "green")
+                                
+                                # Clear and explicit Ctrl+Enter press
+                                pyautogui.keyDown('ctrl')  # Press and HOLD ctrl
+                                time.sleep(0.3)            # Wait while holding ctrl
+                                pyautogui.press('enter')   # Press enter while ctrl is held
+                                time.sleep(0.3)            # Wait before releasing ctrl
+                                pyautogui.keyUp('ctrl')    # Release ctrl
+                                
+                                # Success message
+                                self.print_colored(f"Sent Ctrl+Enter to {chatbot_name}", "green")
+                            except Exception as e:
+                                self.print_colored(f"Error sending Ctrl+Enter: {e}", "red")
+                                # Fallback to basic method if all else fails
+                                pyautogui.press('enter')
+                                
                         elif submit_method == "shift+enter":
                             # Use Shift+Enter to submit
                             time.sleep(0.5)
@@ -765,13 +1039,39 @@ class DragonVoiceCLI:
                     
                     time.sleep(action_delay)  # Use configured action delay
                     
+                    # Check for post-clicks that need to be performed after submitting
+                    if "post_clicks" in coords:
+                        # SKIP POST-CLICKS FOR MEDGPT AND CHATDOC EXPLICITLY
+                        if chatbot_name == "MedGPT":
+                            self.print_colored(f"⚠️ SKIPPING post-clicks for MedGPT to prevent double-clicking", "yellow")
+                        elif chatbot_name == "ChatDoc":
+                            self.print_colored(f"⚠️ SKIPPING post-clicks for ChatDoc", "yellow")
+                        else:
+                            # Only process post-clicks for standard chatbots
+                            self.print_colored(f"\nExecuting post-clicks for {chatbot_name}...", "cyan")
+                            
+                            # Execute each post-click with specified delay
+                            for post_click in coords["post_clicks"]:
+                                x = post_click["x"]
+                                y = post_click["y"]
+                                click_delay = post_click.get("delay", 1.0)  # Default to 1 second delay
+                                
+                                # Wait for the specified delay before clicking
+                                time.sleep(click_delay)
+                                
+                                # Move to and click on the specified coordinates
+                                self.print_colored(f"Clicking at X={x}, Y={y} after {click_delay}s delay", "cyan")
+                                pyautogui.moveTo(x, y, duration=mouse_speed)
+                                pyautogui.click()
+                                time.sleep(action_delay * 2)  # Double delay after each post-click
+                    
                     # Increment success counter
                     success_count += 1
                     
                     # Wait before moving to next chatbot (only if not the last one)
                     if i < total_bots - 1:
                         time.sleep(delay)
-                    
+                        
                 except Exception as e:
                     logger.error(f"Error inputting to chatbot {i+1}: {e}")
                     
@@ -782,7 +1082,7 @@ class DragonVoiceCLI:
                     self.failed_chatbots.append(i)
                     
                     # Clear line and print error
-                    print(f"\r{' ' * 100}", end='', flush=True)  # Clear line
+                    print(f"\r{' ' * 100}", end='', flush=True)  # Clear line with more space for names
                     self.print_colored(f"\r[ERROR] Failed to input to {chatbot_name}: {str(e)}", "red")
                     
                     # Provide recovery options
@@ -1315,6 +1615,7 @@ DragonVoice CLI Commands:
 Primary Usage:
   HOLD ENTER      - Start recording (hold down key)
   RELEASE ENTER   - Stop recording and process audio
+  text, type, t   - Enter text manually instead of voice recording
 
 Recording Controls:
   pause, p        - Pause/resume recording
@@ -1353,6 +1654,7 @@ System:
 
 Tips:
 - HOLD ENTER to start recording, RELEASE when finished
+- Use 'text' command to type text manually instead of speaking
 - Use quick mode (q) for fastest workflow: record, transcribe, and send to all chatbots
 - Use paste mode (p) to send text from clipboard to all chatbots without recording
 - Save different chatbot configurations as profiles for different setups
@@ -1586,6 +1888,8 @@ Tips:
             self.paste_from_clipboard()
         elif command in ['profile', 'prof']:
             self.load_profile_command()
+        elif command in ['text', 'type', 't']:
+            self.input_manual_text()  # New command for manual text input
             
         # Settings
         elif command in ['config', 'cf']:
@@ -2568,6 +2872,7 @@ Tips:
             coordinates = self.config["chatbot_input"]["coordinates"]
             delay = self.config["chatbot_input"]["delay_between_inputs"]
             
+            
             # Get speed settings from config
             mouse_speed = self.config["chatbot_input"].get("mouse_speed", 0.2)
             action_delay = self.config["chatbot_input"].get("action_delay", 0.1)
@@ -2624,16 +2929,149 @@ Tips:
                     # Get chatbot name if available
                     chatbot_name = coords.get("name", f"Chatbot {chatbot_idx+1}")
                     
-                    # Calculate progress
-                    progress = int((i / total_retries) * progress_width)
-                    remaining = progress_width - progress
+                    # Special case for MedGPT - completely skip post-clicks
+                    if chatbot_name == "MedGPT":
+                        self.print_colored(f"\n⚠️⚠️⚠️ RETRYING MEDGPT - NO POST-CLICKS ⚠️⚠️⚠️", "yellow", "bright")
+                        
+                        # CRITICAL: EXPLICITLY REMOVE ANY POST-CLICKS DATA
+                        if "post_clicks" in coords:
+                            self.print_colored(f"⚠️ REMOVING post-clicks configuration for MedGPT", "yellow", "bright")
+                            coords.pop("post_clicks", None)  # Completely remove post_clicks
+                        
+                        # Move to and click on the input field ONLY
+                        self.print_colored(f"Moving to input field at X={coords['x']}, Y={coords['y']}", "cyan")
+                        pyautogui.moveTo(coords["x"], coords["y"], duration=0.2)
+                        pyautogui.click()
+                        time.sleep(0.5)  # Ensure field is focused
+                        
+                        # Paste the text
+                        self.print_colored(f"Pasting text to MedGPT", "cyan")
+                        pyautogui.hotkey('ctrl', 'v')
+                        
+                        # NO MOUSE MOVEMENTS AFTER THIS POINT
+                        self.print_colored(f"⚠️ POST-PASTE: No further mouse actions for MedGPT", "yellow", "bright")
+                        
+                        # Increment success counter
+                        success_count += 1
+                        
+                        # IMPORTANT: Continue to next chatbot immediately
+                        self.print_colored(f"✅ MedGPT retry completed - Moving to next chatbot", "green", "bright")
+                        continue
                     
-                    # Display progress bar
-                    progress_bar = f"[{'#' * progress}{' ' * remaining}] {i+1}/{total_retries}"
+                    # Special case for ChatDoc: Write text and use submit_point to click submit button
+                    elif chatbot_name == "ChatDoc":
+                        self.print_colored(f"\nHandling ChatDoc...", "cyan")
+                        
+                        # CRITICAL: EXPLICITLY REMOVE ANY POST-CLICKS DATA
+                        if "post_clicks" in coords:
+                            self.print_colored(f"⚠️ REMOVING post-clicks configuration for ChatDoc", "yellow", "bright")
+                            coords.pop("post_clicks", None)  # Completely remove post_clicks
+                        
+                        # Move to and click on the input field
+                        self.print_colored(f"Moving to input field at X={coords['x']}, Y={coords['y']}", "cyan")
+                        pyautogui.moveTo(coords["x"], coords["y"], duration=0.2)
+                        pyautogui.click()
+                        time.sleep(0.5)  # Ensure field is focused
+                        
+                        # Paste the text
+                        self.print_colored(f"Pasting text to ChatDoc", "cyan")
+                        pyautogui.hotkey('ctrl', 'v')
+                        time.sleep(0.5)  # Wait for paste to complete
+                        
+                        # Check if a submit_point is defined
+                        if "submit_point" in coords:
+                            submit_point = coords["submit_point"]
+                            submit_x = submit_point.get("x")
+                            submit_y = submit_point.get("y")
+                            
+                            self.print_colored(f"Clicking submit button at X={submit_x}, Y={submit_y}", "green")
+                            
+                            # Move to and click the submit point
+                            pyautogui.moveTo(submit_x, submit_y, duration=0.3)
+                            pyautogui.click()
+                            time.sleep(0.5)  # Wait after clicking submit
+                            
+                            self.print_colored(f"✅ Clicked submit button for ChatDoc", "green")
+                        else:
+                            # No submit_point defined - use enter key
+                            self.print_colored(f"No submit_point defined for ChatDoc - Pressing Enter", "yellow")
+                            pyautogui.press('enter')
+                        
+                        # Increment success counter
+                        success_count += 1
+                        
+                        # Continue to next chatbot
+                        self.print_colored(f"✅ ChatDoc processing complete - Moving to next chatbot", "green", "bright")
+                        continue
                     
-                    # Clear line and print progress
-                    print(f"\r{' ' * 100}", end='', flush=True)  # Clear line with more space for names
-                    print(f"\r[RETRY {chatbot_name}] {progress_bar}", end='', flush=True)
+                    # Special case for Gemini Studio: write text once and submit with ctrl+enter
+                    elif chatbot_name == "Gemini Studio":
+                        self.print_colored(f"\nHandling Gemini Studio with special method...", "cyan")
+                        
+                        # Move to and click on the input field
+                        pyautogui.moveTo(coords["x"], coords["y"], duration=mouse_speed)
+                        pyautogui.click()
+                        time.sleep(0.5)  # Longer delay to ensure field is focused
+                        
+                        # Clear any existing text first
+                        pyautogui.hotkey('ctrl', 'a')  # Select all text
+                        time.sleep(0.1)
+                        pyautogui.press('delete')  # Delete selected text
+                        time.sleep(0.2)
+                        
+                        # Paste the text ONLY ONCE
+                        self.print_colored(f"Pasting text to Gemini Studio (ONE TIME ONLY)...", "green")
+                        pyautogui.hotkey('ctrl', 'v')
+                        time.sleep(0.5)  # Slight delay before submitting
+                        
+                        # Use Ctrl+Enter to submit
+                        self.print_colored(f"Sending Ctrl+Enter to {chatbot_name}...", "cyan")
+                        
+                        # Clear and explicit Ctrl+Enter press
+                        pyautogui.keyDown('ctrl')  # Press and HOLD ctrl
+                        time.sleep(0.3)            # Wait while holding ctrl
+                        pyautogui.press('enter')   # Press enter while ctrl is held
+                        time.sleep(0.3)            # Wait before releasing ctrl
+                        pyautogui.keyUp('ctrl')    # Release ctrl
+                        
+                        # Apply post_wait if specified
+                        if "post_wait" in coords:
+                            post_wait = coords.get("post_wait", 1.0)
+                            self.print_colored(f"Waiting for {post_wait}s after submission", "cyan")
+                            time.sleep(post_wait)
+                        
+                        # Increment success counter
+                        success_count += 1
+                        
+                        # Continue to next chatbot
+                        continue
+                    
+                    # Regular handling for other chatbots
+                    # Check if there are pre-clicks to perform before the main click
+                    if "pre_clicks" in coords:
+                        self.print_colored(f"\nExecuting pre-clicks for {chatbot_name}...", "cyan")
+                        
+                        # Execute each pre-click with specified delay
+                        for pre_click in coords["pre_clicks"]:
+                            x = pre_click["x"]
+                            y = pre_click["y"]
+                            click_delay = pre_click.get("delay", 1.0)  # Default to 1 second delay if not specified
+                            
+                            # Move to and click on the specified coordinates
+                            pyautogui.moveTo(x, y, duration=mouse_speed)
+                            pyautogui.click()
+                            time.sleep(click_delay)  # Wait for the specified delay
+                    
+                    # For backward compatibility, also check for click_before
+                    elif "click_before" in coords:
+                        self.print_colored(f"\nExecuting pre-clicks for {chatbot_name}...", "cyan")
+                        
+                        # Execute each pre-click action
+                        for pre_click in coords["click_before"]:
+                            # Move to and click on the specified coordinates
+                            pyautogui.moveTo(pre_click["x"], pre_click["y"], duration=mouse_speed)
+                            pyautogui.click()
+                            time.sleep(action_delay * 2)  # Double delay after each pre-click
                     
                     # Move to and click on the input field - use configured speed
                     pyautogui.moveTo(coords["x"], coords["y"], duration=mouse_speed)
@@ -2650,19 +3088,70 @@ Tips:
                         self.print_colored(f"\nUsing special submit method for {chatbot_name}: {submit_method}", "cyan")
                         
                         if submit_method == "ctrl+enter":
-                            # Use Ctrl+Enter to submit - use explicit keyDown/keyUp for more reliability
+                            # Use Ctrl+Enter to submit - use stronger method for reliability
                             time.sleep(0.5)  # Add a longer delay before sending Ctrl+Enter
                             self.print_colored(f"Sending Ctrl+Enter to {chatbot_name}...", "cyan")
                             
-                            # Method using explicit keyDown/keyUp
-                            pyautogui.keyDown('ctrl')
-                            time.sleep(0.2)  # Wait a bit with ctrl pressed
-                            pyautogui.press('enter')
-                            time.sleep(0.2)  # Wait a bit before releasing ctrl
-                            pyautogui.keyUp('ctrl')
+                            # Add a special longer delay specifically for Claude before submitting
+                            if chatbot_name == "Claude":
+                                self.print_colored(f"Claude detected - Waiting for 1 second before Ctrl+Enter...", "green")
+                                time.sleep(1.0)  # Wait exactly 1 second for Claude
+                                # No extra clicks, just wait then submit
                             
-                            # Add extra delay after sending Ctrl+Enter
-                            time.sleep(0.5)
+                            # Special case for Gemini which may need a different approach
+                            elif chatbot_name == "Gemini":
+                                self.print_colored(f"Gemini detected - Waiting for 1 second before Ctrl+Enter...", "green")
+                                time.sleep(1.0)  # Wait a bit longer for Gemini
+                                
+                                # Try a more robust method for Gemini
+                                try:
+                                    # First re-click to ensure the input field is still focused
+                                    pyautogui.click(coords["x"], coords["y"])
+                                    time.sleep(0.5)
+                                    
+                                    # First attempt: Use direct hotkey with extra delay
+                                    self.print_colored("Using direct hotkey method for Gemini with extra delay", "green")
+                                    pyautogui.hotkey('ctrl', 'enter')
+                                    time.sleep(1.0)  # Longer wait after sending
+                                    
+                                    # Second attempt: Try the longer key sequence method
+                                    self.print_colored("Using secondary method for Gemini", "green")
+                                    pyautogui.keyDown('ctrl')
+                                    time.sleep(0.5)  # Longer hold time for Gemini
+                                    pyautogui.press('enter')
+                                    time.sleep(0.5)  # Longer wait time
+                                    pyautogui.keyUp('ctrl')
+                                    time.sleep(0.5)
+                                    
+                                    # Success message
+                                    self.print_colored(f"Sent Ctrl+Enter to Gemini using enhanced method", "green")
+                                except Exception as e:
+                                    self.print_colored(f"Error with enhanced method, falling back: {e}", "yellow")
+                                    # Final fallback attempt
+                                    pyautogui.press('enter')
+                                    
+                                # Skip the standard method since we already handled Gemini
+                                continue
+                            
+                            # FIXED CTRL+ENTER METHOD - MORE DIRECT AND RELIABLE
+                            try:
+                                # Simple, direct approach: Hold Ctrl and hit Enter clearly
+                                self.print_colored(f"Holding Ctrl and pressing Enter...", "green")
+                                
+                                # Clear and explicit Ctrl+Enter press
+                                pyautogui.keyDown('ctrl')  # Press and HOLD ctrl
+                                time.sleep(0.3)            # Wait while holding ctrl
+                                pyautogui.press('enter')   # Press enter while ctrl is held
+                                time.sleep(0.3)            # Wait before releasing ctrl
+                                pyautogui.keyUp('ctrl')    # Release ctrl
+                                
+                                # Success message
+                                self.print_colored(f"Sent Ctrl+Enter to {chatbot_name}", "green")
+                            except Exception as e:
+                                self.print_colored(f"Error sending Ctrl+Enter: {e}", "red")
+                                # Fallback to basic method if all else fails
+                                pyautogui.press('enter')
+                                
                         elif submit_method == "shift+enter":
                             # Use Shift+Enter to submit
                             time.sleep(0.5)
@@ -2680,6 +3169,32 @@ Tips:
                         pyautogui.press('enter')
                     
                     time.sleep(action_delay)  # Use configured action delay
+                    
+                    # Check for post-clicks that need to be performed after submitting
+                    if "post_clicks" in coords:
+                        # SKIP POST-CLICKS FOR MEDGPT AND CHATDOC EXPLICITLY
+                        if chatbot_name == "MedGPT":
+                            self.print_colored(f"⚠️ SKIPPING post-clicks for MedGPT to prevent double-clicking", "yellow")
+                        elif chatbot_name == "ChatDoc":
+                            self.print_colored(f"⚠️ SKIPPING post-clicks for ChatDoc", "yellow")
+                        else:
+                            # Only process post-clicks for standard chatbots
+                            self.print_colored(f"\nExecuting post-clicks for {chatbot_name}...", "cyan")
+                            
+                            # Execute each post-click with specified delay
+                            for post_click in coords["post_clicks"]:
+                                x = post_click["x"]
+                                y = post_click["y"]
+                                click_delay = post_click.get("delay", 1.0)  # Default to 1 second delay
+                                
+                                # Wait for the specified delay before clicking
+                                time.sleep(click_delay)
+                                
+                                # Move to and click on the specified coordinates
+                                self.print_colored(f"Clicking at X={x}, Y={y} after {click_delay}s delay", "cyan")
+                                pyautogui.moveTo(x, y, duration=mouse_speed)
+                                pyautogui.click()
+                                time.sleep(action_delay * 2)  # Double delay after each post-click
                     
                     # Increment success counter
                     success_count += 1
@@ -2953,24 +3468,203 @@ Tips:
             logger.error(f"Error adding preset coordinates: {e}")
             self.print_colored(f"Error: {e}", "red")
 
+    def input_manual_text(self):
+        """Allow manual text input instead of voice recording, then send to chatbots"""
+        try:
+            self.print_colored("\n=== MANUAL TEXT INPUT MODE ===", "cyan", "bright")
+            self.print_colored("Type your text below. Press Enter followed by Ctrl+D (Linux/Mac) or Ctrl+Z (Windows) to finish:", "cyan")
+            self.print_colored("(Or just type text and press Enter for a single line)", "yellow")
+            
+            # Get multi-line input from user (if they want to type multiple lines)
+            lines = []
+            try:
+                while True:
+                    line = input("")
+                    lines.append(line)
+                    # If they just press Enter for single line input, break
+                    if len(lines) == 1 and line.strip():
+                        break
+            except (EOFError, KeyboardInterrupt):
+                pass  # User pressed Ctrl+D/Ctrl+Z to finish input
+                
+            # Join all lines into a single text
+            text = "\n".join(lines).strip()
+            
+            if not text:
+                self.print_colored("No text entered. Cancelling.", "yellow")
+                return
+                
+            # Store as last transcription
+            self.last_transcription = text
+            
+            # Show what will be sent
+            self.print_colored(f"\nReady to send text to chatbots:", "green")
+            truncated_text = text[:100] + "..." if len(text) > 100 else text
+            self.print_colored(truncated_text, "cyan")
+            
+            # Ask for confirmation
+            confirm = input("\nSend this text to all chatbots? (y/n): ").strip().lower()
+            if confirm != 'y':
+                self.print_colored("Operation cancelled.", "yellow")
+                return
+                
+            # If confirmed, send to chatbots
+            self.print_colored("\nSending text to chatbots...", "cyan")
+            self.input_to_chatbots(skip_confirmation=True)
+            
+        except Exception as e:
+            logger.error(f"Error in manual text input: {e}")
+            self.print_colored(f"Error: {e}", "red")
+            
+    def setup_file_watcher(self):
+        """Setup a file system watcher to monitor only .dat files for changes"""
+        if not has_watchdog:
+            self.print_colored("Watchdog library not installed. Live updates for .dat files disabled.", "yellow")
+            return
+            
+        try:
+            class DatFileHandler(FileSystemEventHandler):
+                def __init__(self, cli_instance):
+                    self.cli_instance = cli_instance
+                    self.last_modified_times = {}
+                    
+                    # Look for .dat files in the same directory and track them
+                    config_dir = os.path.dirname(os.path.abspath(cli_instance.config_path))
+                    if not config_dir:  # If config is in current directory
+                        config_dir = '.'
+                        
+                    for file in os.listdir(config_dir):
+                        if file.endswith('.dat'):
+                            file_path = os.path.join(config_dir, file)
+                            if os.path.isfile(file_path):
+                                self.last_modified_times[file_path] = os.path.getmtime(file_path)
+                                cli_instance.print_colored(f"Watching .dat file: {file}", "cyan")
+                
+                def on_modified(self, event):
+                    if not event.is_directory:
+                        file_path = event.src_path
+                        
+                        # Skip dragon_cli.py and config.json files
+                        if file_path.endswith('dragon_cli.py') or file_path.endswith('config.json'):
+                            return
+                        
+                        # Only handle .dat file changes
+                        if file_path.endswith('.dat'):
+                            current_time = os.path.getmtime(file_path)
+                            # Check if file was actually modified
+                            if current_time > self.last_modified_times.get(file_path, 0):
+                                self.last_modified_times[file_path] = current_time
+                                self.cli_instance.reload_dat_file(file_path)
+            
+            # Create observer and handler
+            self.file_handler = DatFileHandler(self)
+            self.file_observer = Observer()
+            
+            # Get the directory containing the config file
+            config_dir = os.path.dirname(os.path.abspath(self.config_path))
+            if not config_dir:  # If config is in current directory
+                config_dir = '.'
+                
+            # Schedule the observer to watch the config directory
+            self.print_colored(f"Setting up file watcher for .dat files in {config_dir}", "cyan")
+            self.file_observer.schedule(self.file_handler, config_dir, recursive=False)
+            self.file_observer.start()
+            self.print_colored("Live .dat file updates are now enabled!", "green")
+            
+        except Exception as e:
+            logger.error(f"Error setting up file watcher: {e}")
+            self.print_colored(f"Could not setup live .dat file updates: {e}", "red")
+
+    def reload_dat_file(self, file_path):
+        """Reload a .dat file when it changes"""
+        try:
+            # Get just the filename without path
+            filename = os.path.basename(file_path)
+            
+            self.print_colored(f"Detected changes to .dat file: {filename}", "cyan")
+            
+            # Attempt to load the file as JSON
+            try:
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+                    
+                # Successfully loaded the DAT file
+                self.print_colored(f"✅ Reloaded .dat file: {filename}", "green")
+                
+                # Here you could add specific handling for different .dat files
+                # For example, if it contains chatbot coordinates, you might update those
+                # without restarting
+                
+                return True
+            except json.JSONDecodeError:
+                # Not a valid JSON file
+                self.print_colored(f"⚠️ Could not parse .dat file as JSON: {filename}", "yellow")
+            
+            return False
+        except Exception as e:
+            logger.error(f"Error reloading .dat file {file_path}: {e}")
+            self.print_colored(f"Error reloading .dat file: {e}", "red")
+            return False
+
+    def reload_config(self):
+        """Reload the configuration from file"""
+        try:
+            # Record the current config to check for changes
+            old_config = self.config
+            
+            # Load the new config
+            with open(self.config_path, 'r') as f:
+                new_config = json.load(f)
+                
+            # Update the config
+            self.config = new_config
+            
+            # Notify about the reload
+            self.print_colored("✅ Configuration reloaded from file", "green")
+            
+            # Here you could add specific handlers for different config changes
+            # For example, if hotkeys changed, you might need to rebind them
+            
+            return True
+        except Exception as e:
+            logger.error(f"Error reloading configuration: {e}")
+            self.print_colored(f"Error reloading configuration: {e}", "red")
+            return False
+
+    def cleanup(self):
+        """Clean up resources before exit"""
+        # Stop the file observer if it's running
+        if self.file_observer:
+            self.file_observer.stop()
+            self.file_observer.join()
+        
+        # Add other cleanup code here
+        # ...
+
 def main():
-    """Main entry point"""
+    """Main entry point for the CLI application"""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="DragonVoice CLI")
+    parser.add_argument('--config', help='Path to config file',
+                      default=DEFAULT_CONFIG_PATH)
+    args = parser.parse_args()
+    
+    # Create the CLI instance
+    cli = DragonVoiceCLI(config_path=args.config)
+    
     try:
-        # Parse command line arguments
-        parser = argparse.ArgumentParser(description="DragonVoice CLI")
-        parser.add_argument('--config', help='Path to config file',
-                          default=DEFAULT_CONFIG_PATH)
-        args = parser.parse_args()
+        # Print welcome message
+        cli.print_welcome()
         
-        # Create and run application
-        app = DragonVoiceCLI(config_path=args.config)
-        
-        # Start the main application loop
-        app.main_loop()
-        
+        # Start the CLI
+        cli.main_loop()
+    except KeyboardInterrupt:
+        print("\nExiting DragonVoice CLI...")
     except Exception as e:
-        logger.error(f"Application error: {e}")
-        sys.exit(1)
+        print(f"Error: {str(e)}")
+    finally:
+        # Clean up before exit
+        cli.cleanup()
 
 if __name__ == "__main__":
     main()

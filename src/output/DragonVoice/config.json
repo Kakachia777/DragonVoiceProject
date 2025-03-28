@@ -1,0 +1,155 @@
+{
+    "openai": {
+        "api_key": "",
+        "base_url": "https://api.deepinfra.com/v1/openai",
+        "model": "whisper-large-v3",
+        "default_language": "en"
+    },
+    "audio": {
+        "samplerate": 16000,
+        "channels": 1,
+        "device": null,
+        "chunk_size": 1024,
+        "gain": 1.0,
+        "noise_gate": 0.01
+    },
+    "recording": {
+        "auto_save": true,
+        "save_path": "recordings",
+        "max_duration": 300,
+        "silence_threshold": 0.01,
+        "silence_duration": 2.0
+    },
+    "transcription": {
+        "save_path": "transcripts",
+        "response_format": "verbose_json",
+        "temperature": 0.0,
+        "prompt": null,
+        "timestamp_granularities": [
+            "segment"
+        ]
+    },
+    "interface": {
+        "level_meter_width": 50,
+        "level_meter_chars": [
+            "\u2581",
+            "\u2582",
+            "\u2583",
+            "\u2584",
+            "\u2585",
+            "\u2586",
+            "\u2587",
+            "\u2588"
+        ],
+        "colors_enabled": true,
+        "status_refresh_rate": 0.1
+    },
+    "chatbot_input": {
+        "enabled": true,
+        "delay_between_inputs": 0.5,
+        "coordinates": [
+            {
+                "name": "Gemini Advanced",
+                "x": -2674,
+                "y": -186,
+                "submit_with": "ctrl+enter"
+            },
+            {
+                "name": "Clair",
+                "x": -2464,
+                "y": -116
+            },
+            {
+                "name": "Perplexity",
+                "x": -1480,
+                "y": -134
+            },
+            {
+                "name": "Documind",
+                "x": -772,
+                "y": -38
+            },
+            {
+                "name": "PDF.AI",
+                "x": 286,
+                "y": 1013
+            },
+            {
+                "name": "HuggingFace",
+                "x": 313,
+                "y": 1921
+            },
+            {
+                "name": "GlassHealth",
+                "x": 1187,
+                "y": 948
+            },
+            {
+                "name": "CoralAI",
+                "x": 1168,
+                "y": 1968
+            },
+            {
+                "name": "OpenEvidence",
+                "x": 2277,
+                "y": 436
+            },
+            {
+                "name": "Gemini Studio",
+                "x": 2190,
+                "y": 1961,
+                "submit_with": "ctrl+enter",
+                "post_wait": 1.0
+            },
+            {
+                "name": "ChatDoc",
+                "x": 3286,
+                "y": 909,
+                "submit_point": {"x": 3392, "y": 835}
+            },
+            {
+                "name": "Chat",
+                "x": 3766,
+                "y": 985
+            },
+            {
+                "name": "Research Kick",
+                "x": 3037,
+                "y": 1945
+            },
+            {
+                "name": "DocuAsk",
+                "x": 6137,
+                "y": 1254,
+                "pre_clicks": [
+                    {"x": 5805, "y": 222, "delay": 1.0},
+                    {"x": 5940, "y": 308, "delay": 1.0},
+                    {"x": 6621, "y": 375, "delay": 1.0}
+                ],
+                "post_clicks": [
+                    {"x": 6137, "y": 1254, "delay": 1.0}
+                ]
+            },
+            {
+                "name": "DR Oracle 1-Question",
+                "x": 6834,
+                "y": 780
+            },
+            {
+                "name": "DR Oracle 2-Enter",
+                "x": 6909,
+                "y": 893
+            },
+            {
+                "name": "Dougall GPT",
+                "x": 7961,
+                "y": 606
+            },
+            {
+                "name": "Medical Chat",
+                "x": 7908,
+                "y": 1494
+            }
+        ]
+    }
+}
