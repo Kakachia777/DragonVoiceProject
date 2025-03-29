@@ -1,5 +1,23 @@
-flask>=2.0.0
-requests>=2.25.0
-pyautogui>=0.9.52
-pygetwindow>=0.0.9
-pyperclip>=1.8.2 
+# Core dependencies
+numpy>=1.20.0
+sounddevice>=0.4.1
+soundfile>=0.10.3
+requests>=2.25.1
+python-dotenv>=0.19.0
+pyperclip>=1.8.2
+Pillow>=9.0.0
+
+# Audio processing
+# Note: PyAudio may require additional system dependencies to install
+PyAudio>=0.2.11
+
+# GUI automation
+pyautogui>=0.9.53
+keyboard>=0.13.5
+mouse>=0.7.1
+
+# Windows-specific (for Windows only)
+pywin32>=303; platform_system=="Windows"
+
+# For building executable
+pyinstaller>=5.6.2 

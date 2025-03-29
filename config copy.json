@@ -1,0 +1,227 @@
+{
+    "openai": {
+        "api_key": "",
+        "base_url": "https://api.deepinfra.com/v1/openai",
+        "model": "whisper-large-v3",
+        "default_language": "en"
+    },
+    "audio": {
+        "samplerate": 16000,
+        "channels": 1,
+        "device": null,
+        "chunk_size": 1024,
+        "gain": 1.0,
+        "noise_gate": 0.01
+    },
+    "recording": {
+        "auto_save": true,
+        "save_path": "recordings",
+        "max_duration": 300,
+        "silence_threshold": 0.01,
+        "silence_duration": 2.0
+    },
+    "transcription": {
+        "save_path": "transcripts",
+        "response_format": "verbose_json",
+        "temperature": 0.0,
+        "prompt": null,
+        "timestamp_granularities": [
+            "segment"
+        ]
+    },
+    "interface": {
+        "level_meter_width": 50,
+        "level_meter_chars": [
+            "\u2581",
+            "\u2582",
+            "\u2583",
+            "\u2584",
+            "\u2585",
+            "\u2586",
+            "\u2587",
+            "\u2588"
+        ],
+        "colors_enabled": true,
+        "status_refresh_rate": 0.1
+    },
+    "chatbot_input": {
+        "enabled": true,
+        "delay_between_inputs": 0.5,
+        "coordinates": [
+            {
+                "name": "Anara",
+                "x": -1797,
+                "y": -222,
+                "post_wait": 0.5
+            },
+            {
+                "name": "Answerr",
+                "x": -1687,
+                "y": 294,
+                "post_wait": 0.5
+            },
+            {
+                "name": "Generic Bot",
+                "x": -1091,
+                "y": -193,
+                "post_wait": 0.5
+            },
+            {
+                "name": "Abacus.AI (Claude Sonnet 3.7)",
+                "x": -1166,
+                "y": 244,
+                "post_wait": 0.5,
+                "key_press": "enter"
+            },
+            {
+                "name": "ChatGPT 4.5",
+                "x": -498,
+                "y": -258,
+                "post_clicks": [
+                    {"x": -41, "y": -207, "delay": 1.0}
+                ],
+                "post_wait": 0.5,
+                "press_enter": false
+            },
+            {
+                "name": "Robert Lab (ChatGPT)",
+                "x": -506,
+                "y": 318,
+                "post_wait": 0.5,
+                "key_press": ["shift", "enter"]
+            },
+            {
+                "name": "Consensus AI - Search",
+                "x": -503,
+                "y": -1920,
+                "post_wait": 0.5
+            },
+            {
+                "name": "ClinicalKey AI",
+                "x": -456,
+                "y": -1340,
+                "post_wait": 0.5
+            },
+            {
+                "name": "ChatGPT 4.5",
+                "x": 41,
+                "y": -1705,
+                "post_clicks": [
+                    {"x": 530, "y": -1669, "delay": 1.0}
+                ],
+                "post_wait": 0.5
+            },
+            {
+                "name": "Otio.ai",
+                "x": 153,
+                "y": -1221,
+                "post_clicks": [
+                    {"x": 511, "y": -1143, "delay": 1.0}
+                ],
+                "post_wait": 0.5
+            },
+            {
+                "name": "ChatGPT 4.5",
+                "x": 701,
+                "y": -1716,
+                "post_clicks": [
+                    {"x": 1176, "y": -1670, "delay": 1.0}
+                ],
+                "post_wait": 0.5
+            },
+            {
+                "name": "ReachRx",
+                "x": 741,
+                "y": -1231,
+                "post_wait": 0.5
+            },
+            {
+                "name": "Grok",
+                "x": 298,
+                "y": 449,
+                "post_wait": 0.5
+            },
+            {
+                "name": "Robert Lab (ChatGPT)",
+                "x": 169,
+                "y": 1047,
+                "post_wait": 0.5
+            },
+            {
+                "name": "Concierge AI",
+                "x": 823,
+                "y": 462,
+                "post_wait": 0.5
+            },
+            {
+                "name": "UPDF AI",
+                "x": 708,
+                "y": 968,
+                "post_wait": 0.5
+            },
+            {
+                "name": "TextCortex (Zeno)",
+                "x": 1375,
+                "y": 420,
+                "post_wait": 0.5
+            },
+            {
+                "name": "Pathway",
+                "x": 1428,
+                "y": 1015,
+                "post_clicks": [
+                    {"x": 1862, "y": 1018, "delay": 1.0}
+                ],
+                "post_wait": 0.5
+            },
+            {
+                "name": "NotebookLM (Google)",
+                "x": 1465,
+                "y": -826,
+                "post_wait": 0.5
+            },
+            {
+                "name": "SciSpace",
+                "x": 1657,
+                "y": -565,
+                "post_wait": 0.5
+            },
+            {
+                "name": "NotebookLM (Google)",
+                "x": 2206,
+                "y": -842,
+                "post_wait": 0.5
+            },
+            {
+                "name": "HealthUniverse (Navigator)",
+                "x": 2417,
+                "y": -188,
+                "post_wait": 0.5
+            },
+            {
+                "name": "AskClair AI",
+                "x": 3300,
+                "y": -968,
+                "post_wait": 0.5
+            },
+            {
+                "name": "Yesil Health AI",
+                "x": 3927,
+                "y": -79,
+                "post_wait": 0.5
+            },
+            {
+                "name": "Medical Chat Data",
+                "x": 4829,
+                "y": -106,
+                "post_wait": 0.5
+            },
+            {
+                "name": "ChatHub",
+                "x": 6032,
+                "y": -82,
+                "post_wait": 0.5
+            }
+        ]
+    }
+}

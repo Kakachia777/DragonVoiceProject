@@ -1,144 +1,153 @@
-# Dragon Voice Project
+# Dragon Voice Assistant
 
-A voice-controlled multi-browser query system designed to enhance research efficiency with Dragon Medical One.
-
-## Overview
-
-The Dragon Voice Project lets medical professionals voice-control multiple browser windows simultaneously, sending the same search query to different medical research sites, databases, or EHRs across multiple screens. This dramatically speeds up medical information retrieval by replacing manual typing and window switching.
+A powerful voice assistant that transcribes your speech and sends it to multiple chatbots simultaneously.
 
 ## Features
 
-- **Voice-Activated Searches**: Using voice commands to trigger searches across multiple browsers
-- **Multi-Browser Control**: Simultaneously query different medical resources
-- **Flexible Integration**: Works with either text file or clipboard monitoring methods
-- **Customizable Configuration**: Easy-to-edit configuration file for system preferences
-- **Visual Feedback**: Optional notifications when searches are detected and processed
-- **Automatic Startup**: Optional system startup integration
+- **Modern, User-Friendly Interface**: Clean, card-based design with intuitive controls
+- **Voice Transcription**: Record your voice and instantly transcribe it
+- **Multi-Chatbot Support**: Send transcribed text to multiple AI chatbots at once
+- **Clipboard Integration**: Paste text from clipboard directly to chatbots
+- **Audio Device Selection**: Choose your preferred recording device
+- **Customizable Settings**: Adjust gain, enable/disable features, and more
 
-## Requirements
+## Computer A vs Computer B
 
-- Windows 10/11
-- Python 3.6 or higher
-- Dragon Medical One 2025
-- Google Chrome browser
-- Required Python packages (installed automatically by setup.py):
-  - pygetwindow
-  - pyautogui
-  - pyperclip
-  - win10toast
+This project provides two separate executables:
 
-## Installation
+- **DragonVoiceA.exe**: Uses `Dragon_cli2.py` with a green-themed UI
+- **DragonVoiceB.exe**: Uses `dragon_cli.py` with a blue-themed UI
 
-1. Clone or download this repository
-2. Navigate to the project directory
-3. Run the setup script:
+Both applications have the same functionality but are designed to be run on different computers for specialized workflows.
 
+## Building the Executables
+
+### Option 1: Using the Python Script (Recommended)
+
+1. Make sure you have Python 3.8+ installed
+2. Run the build script:
+   ```
+   python build_pyinstaller.py
+   ```
+3. The script will:
+   - Install required dependencies
+   - Clean existing build files
+   - Build both executables
+   - Create output folders with all necessary files
+   - Generate ZIP files for easy distribution
+
+### Option 2: Using Windows Batch File
+
+1. Double-click `build_executables.bat` to run the batch file
+2. Follow the on-screen instructions
+
+### Option 3: Manual Build
+
+If you prefer to build manually:
+
+1. Install PyInstaller: `pip install pyinstaller`
+2. Build Computer A:
+   ```
+   pyinstaller --name=DragonVoiceA --onefile --noconsole --icon=dragon_icon.ico --add-data=dragon_icon.ico;. --add-data=config.json;. dragon_gui_minimal_a.py
+   ```
+3. Build Computer B:
+   ```
+   pyinstaller --name=DragonVoiceB --onefile --noconsole --icon=dragon_icon.ico --add-data=dragon_icon.ico;. --add-data=config.json;. dragon_gui_minimal_b.py
+   ```
+4. Create output directories and copy necessary files
+
+## Using the Application
+
+1. Extract the ZIP file for your computer (A or B)
+2. Double-click the executable (`DragonVoiceA.exe` or `DragonVoiceB.exe`)
+3. Use the buttons to:
+   - **Record Voice**: Click to start recording, speak, and wait for transcription
+   - **Quick Mode**: Record and send to chatbots in one step
+   - **Paste from Clipboard**: Send clipboard content to chatbots
+   - **Retry Failed**: Retry sending to any chatbots that failed
+   - **Settings**: Configure audio device, gain, and other options
+
+### Pinning to Taskbar
+
+For quick access, you can pin the application to your Windows taskbar:
+
+1. Right-click the shortcut file (`.lnk`) from the build output or desktop
+2. Select "Pin to taskbar" from the context menu
+3. The application will now be available directly from your taskbar
+
+Alternatively, if you've already run the application:
+1. Right-click the application icon in the taskbar
+2. Select "Pin to taskbar"
+
+### Keyboard Shortcuts
+
+- **F9**: Start recording
+- **F10**: Quick mode (record and send)
+
+## Chatbot Configuration
+
+### Setting Chatbot Input Coordinates
+
+In the configuration file, you can specify coordinates for your chatbots:
+
+```json
+"chatbot_input": {
+    "enabled": true,
+    "delay_between_inputs": 0.5,
+    "coordinates": [
+        {
+            "name": "Chatbot A",
+            "x": 1000,
+            "y": 500,
+            "post_wait": 0.5
+        },
+        {
+            "name": "Chatbot B",
+            "x": 1200,
+            "y": 600,
+            "key_press": "enter",
+            "post_wait": 0.5
+        },
+        {
+            "name": "Chatbot C",
+            "x": 1500,
+            "y": 700,
+            "key_press": ["shift", "enter"],
+            "post_wait": 0.5
+        }
+    ]
+}
 ```
-python src/setup.py
-```
 
-The setup script will:
-- Check and install required dependencies
-- Create and configure the necessary files
-- Test the system components
-- Set up autostart (optional)
+### Coordinate Options
 
-## Configuration
+Each chatbot entry in the coordinates array supports these options:
 
-The system can be configured through the setup process or by directly editing the `config.json` file, which includes settings for:
-
-### Integration Settings
-- `mode`: Input monitoring method ("file" or "clipboard")
-- `file_path`: Path to the Dragon output file (when in "file" mode)
-- `polling_interval`: How often to check for new content (in seconds)
-- `command_prefix`: Text prefix that triggers a search (e.g., "search for")
-
-### Browser Settings
-- `window_title_pattern`: Browser window title pattern to identify target windows
-- `typing_delay`: Delay between keystrokes when typing (in seconds)
-- `window_switch_delay`: Delay between switching windows (in seconds)
-
-### Feedback Settings
-- `audio_enabled`: Enable/disable audio feedback
-- `popup_enabled`: Enable/disable popup notifications
-- `log_queries`: Enable/disable query logging
-- `log_file`: Path to the log file for queries
-
-## Usage
-
-### Setting Up Dragon Medical One
-
-#### File Output Method (Recommended)
-1. In Dragon Medical One, configure it to output dictation to a text file:
-   - The default path is `C:/dragon_query.txt`, but this can be changed in the configuration
-   - You may need to consult Dragon Medical One's documentation for specific instructions
-
-#### Clipboard Method (Alternative)
-1. Configure Dragon Medical One to copy dictation to clipboard
-2. Set the monitoring mode to "clipboard" in the configuration
-
-### Running the System
-
-After setup, you can start the system by:
-
-1. Running the script directly:
-   ```
-   python src/dragon_monitor.py
-   ```
-2. Using the batch file or shortcut created during setup
-
-### Using Voice Commands
-
-Once the system is running:
-
-1. Open multiple Chrome browser windows (one per resource you want to search)
-2. Say your command prefix followed by your search query:
-   ```
-   "search for hypertension treatment guidelines"
-   ```
-3. The system will automatically:
-   - Detect your query
-   - Type it into all open Chrome windows
-   - Press Enter to execute the search in each window
-
-## Testing
-
-You can test the basic functionality without Dragon Medical One by:
-
-1. Running the quick test script:
-   ```
-   python src/quick_test.py
-   ```
-2. Following the on-screen instructions
+- **name**: A descriptive name for the chatbot (for logs)
+- **x, y**: Screen coordinates where to click (required)
+- **post_wait**: Time to wait after all actions (default: 0.5s)
+- **press_enter**: Whether to press Enter after pasting (default: true)
+- **key_press**: Custom key or key combination to press after pasting:
+  - Single key: `"key_press": "enter"` or `"key_press": "tab"`
+  - Key combination: `"key_press": ["ctrl", "enter"]` or `"key_press": ["shift", "enter"]`
+- **post_clicks**: Additional clicks to perform after the main actions:
+  ```json
+  "post_clicks": [
+      {"x": 1050, "y": 550, "delay": 1.0}
+  ]
+  ```
 
 ## Troubleshooting
 
-### Common Issues
+If you encounter issues:
 
-- **No searches being triggered**:
-  - Check that Dragon Medical One is correctly outputting to the text file or clipboard
-  - Verify that you're using the correct command prefix
-  - Check the configuration settings in `config.json`
+1. **Missing dependencies**: Run `pip install -r requirements.txt`
+2. **Audio device issues**: Select a different audio device in Settings
+3. **Chatbot coordination issues**: Use the Calibrate button in Settings to set up chatbot coordinates
+4. **Application crashes**: Check the console output for error messages
 
-- **Searches triggered but not executing in browsers**:
-  - Ensure Chrome windows are open and visible
-  - Check that the window title pattern in configuration matches your Chrome windows
-  - Try increasing the typing delay if characters are being missed
+## Requirements
 
-- **System crashes or freezes**:
-  - Check the error log for details
-  - Ensure all required packages are installed
-  - Try running with default configuration settings
-
-### Support
-
-For additional help, please refer to the documentation or contact the support team.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Dragon Medical One by Nuance Communications
-- Python community for the excellent libraries used in this project
+- Python 3.8+ (for building)
+- Windows 10/11
+- Microphone for voice input 
